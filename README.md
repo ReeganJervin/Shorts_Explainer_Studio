@@ -37,6 +37,20 @@ The finished files go in the **`videos`** folder:
 
 A 20-second Short takes about half a minute the first time. Voice lines are remembered, so when you only change cuts or settings, the voices aren't made again.
 
+## Getting Claude to write the script
+
+- **In Claude Code:** open this project and type `/new-short clips/bonito.mp4 how bonito flakes are made`. Claude looks at the clip, writes the script with its cuts and markers, makes the Short, checks the report and the pictures, fixes what's wrong, and shows it to you for approval.
+- **In the Claude app:** use the prompts in **[prompts-for-claude.md](prompts-for-claude.md)**. You can attach the clip's contact sheets so Claude can see it.
+
+Either way, check the facts it lists for you before you upload.
+
+### Two helpers
+
+| Command | What it does |
+|---|---|
+| `node tools\clip-sheet.js clips\bonito.mp4` | Contact sheets of the clip in `build\sheets\`: one frame a second with its time, as it will look in the Short, with a grid every 10 % (for reading off marker positions), YouTube's covered strips in red and the caption band in yellow. It also lists the moments the picture changes (good places for cuts). Add `--full` to see the whole frame (for choosing the crop), `--crop 0.3` for another crop, or `--every 0.5` for more frames |
+| `node tools\stills.js videos\bonito.mp4 1 3.5 7` | Stills from the finished Short at those seconds, side by side, in `build\stills\`, for checking that markers sit where they should |
+
 ## The script file
 
 ```
@@ -171,6 +185,9 @@ Every Short gets `<name>-cover.jpg`: a clean frame (no captions or markers, but 
 | `tools\markers.js` | The step badge, labels, circles, arrows and title card |
 | `tools\cover.js` | The cover image |
 | `tools\checks.js` | The checks on the clip, the script and the timeline |
+| `tools\clip-sheet.js`, `tools\stills.js` | The two helpers above |
+| `.claude\skills\new-short\` | The `/new-short` command for Claude Code |
+| `prompts-for-claude.md` | Prompts for writing a script in the Claude app |
 | `tools\tts.py` | Makes the voice lines with Kokoro |
 | `fonts\Anton-Regular.ttf` | The caption font (SIL Open Font License, in `licenses\`) |
 
