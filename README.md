@@ -8,9 +8,7 @@ You write a short script for a video clip and get a finished, explained vertical
 - the clip **cut** to the parts you choose and **cropped to 9:16**
 - **markers**: step counters, labels, circles and arrows, **zooms** and **freeze-frames**, each with its own sound effect
 - an optional **title card** and your **logo**
-- a `.srt` subtitle file, a **description draft** with a credit line, and a **check report**
-
-Coming next (Phase 3): a cover image and more checks.
+- a **cover image**, a `.srt` subtitle file, a **description draft** with a credit line, and a **check report** that warns you about the things that lose viewers
 
 ## One-time setup (Windows)
 
@@ -24,7 +22,7 @@ After setup, everything runs offline.
 
 1. Put your clip in the **`clips`** folder (and any music in **`music`**).
 2. Copy `shorts\_template.txt` to a new name, for example `shorts\bonito.txt`, and fill it in.
-3. Check it: `check-script.bat shorts\bonito.txt`. This takes a second.
+3. Check it: `check-script.bat shorts\bonito.txt`. This takes a second, and also warns you about a blurry clip, cuts past the end of the clip, a title that's too long and too many hashtags.
 4. Make it: `make-short.bat shorts\bonito.txt`, or drag the script file onto `make-short.bat`.
 
 The finished files go in the **`videos`** folder:
@@ -32,6 +30,7 @@ The finished files go in the **`videos`** folder:
 | File | What it is |
 |---|---|
 | `bonito.mp4` | The Short, ready to upload |
+| `bonito-cover.jpg` | The cover: a clean frame of the Short with the title on it big (see "The cover" below) |
 | `bonito.srt` | Subtitles (upload them in YouTube Studio, under Subtitles) |
 | `bonito-description.txt` | A description draft: the title, the hook, the credit and the hashtags |
 | `bonito-report.txt` | The checks (`PASS`, `WARN`, `FAIL`) and when each voice line plays |
@@ -41,7 +40,7 @@ A 20-second Short takes about half a minute the first time. Voice lines are reme
 ## The script file
 
 ```
-title: How bonito flakes are made
+title: How *bonito flakes* are made
 clip: clips/bonito.mp4
 voice: narrator
 original audio: 15%
@@ -85,6 +84,8 @@ Lines starting with `#` are notes and do nothing.
 | `credit:` | The credit line for the description | A placeholder to fill in |
 | `hashtags:` | The hashtags for the description | `#shorts` |
 | `captions:` | `on` or `off` | `on` |
+| `cover at:` | The moment of the Short to make the cover from, like `7.5` | The first zoom at its closest, or 40 % of the way in |
+| `cover text:` | The words on the cover | The title |
 | `title card:` | Shows the title at the top: a number of seconds (like `3`), `always`, or `off` | `off` |
 | `logo:` | Your logo, a PNG with a transparent background, shown on the whole Short | No logo |
 | `logo position:` | `top left` or `top right` | `top left` |
@@ -123,9 +124,35 @@ Markers point things out. Each one is a line like a voice line:
 
 Two zooms can't overlap, and neither can two freezes. Emoji in labels may not show, depending on the computer, so words are safer.
 
+### Yellow words
+
+Put `*stars*` around words in the `title:` or the `cover text:` to make them yellow on the title card and the cover, for example `title: How *bonito flakes* are made`. The stars are left out of the description.
+
 ### When the voice runs long
 
 If the voice goes on longer than the footage, the last frame is held until the voice ends, and the report warns you. To fix it, add footage or shorten the script.
+
+## The cover
+
+Every Short gets `<name>-cover.jpg`: a clean frame (no captions or markers, but with your logo), darker behind the text, with the `cover text:` (or the title) in big letters a third of the way down. Upload it as the Short's thumbnail in YouTube Studio if it lets you; otherwise, when you pick the Short's thumbnail frame in the YouTube app, choose the moment the report names.
+
+## The check report
+
+`<name>-report.txt` starts with a line per check. `PASS` is fine, `WARN` is worth a look (the Short is still made) and `FAIL` means something went wrong. Besides the size, length and sound, it checks:
+
+| Check | Warns when |
+|---|---|
+| Picture | The clip is so small that it's enlarged more than 2x (it will look soft) |
+| Cuts | A cut ends after the clip does, or is shorter than 0.4 s |
+| Footage | The voice runs past the footage, so the last frame is held |
+| Black frames | The picture is black for 0.4 s or more (usually a cut that lands in a fade) |
+| Hook | The first words come after 1 s, or the first line takes more than 4 s to say |
+| Silences | Nothing is said for more than 2.5 s |
+| Captions clear | A label, circle or arrow covers the captions (about 55-66 % down) |
+| Safe area | A marker is where YouTube's buttons or title cover the picture |
+| Title | Over 60 characters (cut off on phones), or over 100 (YouTube won't take it) |
+| Hashtags | More than 15 (YouTube then ignores all of them) |
+| Credit | There's no `credit:` line |
 
 ## The voices
 
@@ -142,6 +169,8 @@ If the voice goes on longer than the footage, the last frame is held until the v
 | `tools\script.js` | Reads a script and places the voice lines on the timeline |
 | `tools\captions.js` | The burned-in captions and the `.srt` |
 | `tools\markers.js` | The step badge, labels, circles, arrows and title card |
+| `tools\cover.js` | The cover image |
+| `tools\checks.js` | The checks on the clip, the script and the timeline |
 | `tools\tts.py` | Makes the voice lines with Kokoro |
 | `fonts\Anton-Regular.ttf` | The caption font (SIL Open Font License, in `licenses\`) |
 

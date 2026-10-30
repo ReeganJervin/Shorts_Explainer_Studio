@@ -45,7 +45,7 @@ function captionEvents(lines) {
 }
 
 // 1080x1920; the captions sit at about 64 % height, clear of the title at the top and YouTube's buttons at the bottom.
-// Step and Title use BorderStyle 3: the outline colour becomes a box behind the text.
+// Step and Label use BorderStyle 3: the outline colour becomes a box behind the text.
 function makeAss(events) {
   return `[Script Info]
 ScriptType: v4.00+
@@ -57,7 +57,7 @@ ScaledBorderAndShadow: yes
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Caption,Anton,150,&H00FFFFFF,&H00FFFFFF,&H00000000,&H96000000,0,0,0,0,100,100,1,0,1,10,4,2,70,70,680,1
-Style: Title,Anton,84,&H00FFFFFF,&H00FFFFFF,&H50000000,&H00000000,0,0,0,0,100,100,1,0,3,18,0,8,80,80,0,1
+Style: Title,Anton,96,&H00FFFFFF,&H00FFFFFF,&H00000000,&H96000000,0,0,0,0,100,100,1,0,1,8,4,8,80,80,0,1
 Style: Step,Anton,86,&H00000000,&H00000000,&H0000E6FF,&H00000000,0,0,0,0,100,100,2,0,3,14,0,7,0,0,0,1
 Style: Label,Anton,96,&H00000000,&H00000000,&H00FFFFFF,&H64000000,0,0,0,0,100,100,1,0,3,16,0,5,0,0,0,1
 Style: Draw,Arial,20,&H00FFFFFF,&H00FFFFFF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,0,0,7,0,0,0,1

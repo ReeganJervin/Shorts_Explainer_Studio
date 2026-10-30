@@ -5,12 +5,14 @@
 //
 // Steps: read the script -> check the clip -> make the voice lines (Kokoro, cached) -> place them on the timeline
 // -> captions and markers -> one ffmpeg pass (cuts and freezes, 9:16 crop, zooms, logo, captions and markers,
-// voice over the lowered original audio and music, sound effects).
+// voice over the lowered original audio and music, sound effects) -> the cover image and the checks.
 const fs = require('fs'), path = require('path'), crypto = require('crypto'), { spawnSync } = require('child_process');
 const ffmpeg = require('ffmpeg-static'), ffprobe = require('ffprobe-static').path;
 const { readScript, placeLines, placeMarkers } = require('./script.js');
 const { makeAss, makeSrt, captionEvents } = require('./captions.js');
 const { markerEvents } = require('./markers.js');
+const { clipChecks, timelineChecks } = require('./checks.js');
+const { coverTime, coverAss, plainText, DARKEN } = require('./cover.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const W = 1080, H = 1920, FPS = 30, TAIL = 0.6;
@@ -124,7 +126,7 @@ function main() {
   const cuts = s.cuts.length ? s.cuts : [{ start: 0, end: clip.duration }];
   const bad = cuts.filter(c => c.start >= clip.duration - 0.05).map(c => `Line ${c.line}: the cut starts at ${c.start}s, but the clip is only ${clip.duration.toFixed(1)}s long.`);
   if (bad.length) fail(bad.join('\n'));
-  cuts.forEach(c => { c.end = Math.min(c.end, clip.duration); });
+  cuts.forEach(c => { c.wanted = c.end; c.end = Math.min(c.end, clip.duration); });
   const musicFile = set.music ? findFile(set.music, here) : null;
   if (set.music && !musicFile) fail(`The music "${set.music}" isn't there. Put it in the music folder and write "music: music/<file name>".`);
   const logoFile = set.logo ? findFile(set.logo, here) : null;
@@ -132,7 +134,11 @@ function main() {
   const voices = JSON.parse(fs.readFileSync(path.join(ROOT, 'config', 'voices.json'), 'utf8'));
   const voice = voices[set.voice];
   if (!voice || set.voice.startsWith('_')) fail(`There is no voice called "${set.voice}". Voices: ${Object.keys(voices).filter(k => !k.startsWith('_')).join(', ')} (in config/voices.json).`);
-  if (checkOnly) return say(`${path.basename(scriptPath)} looks good: ${s.lines.length} voice line(s), ${s.markers.length} marker(s), ${cuts.length} cut(s) from a ${clip.duration.toFixed(1)}s clip.`);
+  const early = clipChecks(clip, cuts, set);
+  if (checkOnly) {
+    const warned = early.some(c => c[0] !== 'PASS'), what = `${s.lines.length} voice line(s), ${s.markers.length} marker(s), ${cuts.length} cut(s) from a ${clip.duration.toFixed(1)}s clip`;
+    return say(`${path.basename(scriptPath)} ${warned ? `can be made (${what}), but have a look at the WARN lines` : `looks good: ${what}`}.\n\n${early.map(c => `${c[0]}  ${c[1]}: ${c[2]}`).join('\n')}\n\nThe voice, timing and picture checks run when the Short is made.`);
+  }
 
   // voices -> timeline -> markers
   const voiceFiles = makeVoices(s.lines, voice);
@@ -153,6 +159,7 @@ function main() {
   const pictured = footage + frozen;
   const needed = s.lines[s.lines.length - 1].end + TAIL, hold = Math.max(0, needed - pictured), total = pictured + hold;
   const zooms = s.markers.filter(m => m.kind === 'zoom' && m.start < total);
+  const cover = coverTime(set['cover at'], s.markers, total);
 
   // captions, markers and subtitles
   const buildDir = path.join(ROOT, 'build', safe), videos = path.join(ROOT, 'videos');
@@ -182,6 +189,9 @@ function main() {
     g.push(`[${k}:v]scale=140:-1,format=rgba,colorchannelmixer=aa=0.9[logo]`, `${pic}[logo]overlay=${x}:90:format=auto[vlogo]`);
     pic = '[vlogo]';
   }
+  // a clean frame for the cover (no captions or markers), taken from the same picture
+  g.push(`${pic}split=2[vclean][vcov]`, `[vcov]select='eq(n,${Math.round(cover * FPS)})'[vcover]`);
+  pic = '[vclean]';
   g.push(`${pic}subtitles=${rel(path.join(buildDir, 'overlay.ass'))}:fontsdir=fonts,format=yuv420p[vout]`);
 
   // the sound: voice on top; the original audio and the music underneath, ducked further while the voice talks;
@@ -218,12 +228,16 @@ function main() {
   fs.writeFileSync(path.join(buildDir, 'filter.txt'), g.join(';\n'));
   run([...inputs, '-filter_complex_script', rel(path.join(buildDir, 'filter.txt')), '-map', '[vout]', '-map', '[aout]',
     '-c:v', 'libx264', '-preset', 'medium', '-crf', '20', '-pix_fmt', 'yuv420p', '-r', String(FPS),
-    '-c:a', 'aac', '-b:a', '192k', '-t', total.toFixed(3), '-movflags', '+faststart', outFile], 'Making the video');
+    '-c:a', 'aac', '-b:a', '192k', '-t', total.toFixed(3), '-movflags', '+faststart', outFile,
+    '-map', '[vcover]', '-frames:v', '1', '-update', '1', rel(path.join(buildDir, 'cover-frame.png'))], 'Making the video');
+  const coverFile = path.join(videos, `${name}-cover.jpg`), coverText = set['cover text'] || set.title || name;
+  fs.writeFileSync(path.join(buildDir, 'cover.ass'), coverAss(coverText));
+  run(['-i', rel(path.join(buildDir, 'cover-frame.png')), '-vf', `${DARKEN},subtitles=${rel(path.join(buildDir, 'cover.ass'))}:fontsdir=fonts,format=yuvj420p`, '-frames:v', '1', '-q:v', '2', coverFile], 'Making the cover');
 
   // upload helpers and the check report
   const tags = set.hashtags || '#shorts';
   fs.writeFileSync(path.join(videos, `${name}-description.txt`), [
-    set.title || name, '', s.lines.slice(0, 2).map(l => l.text).join(' '), '',
+    plainText(set.title || name), '', s.lines.slice(0, 2).map(l => l.text).join(' '), '',
     set.credit ? set.credit : 'Credit: (add the original creator of the footage here)', '', tags, '',
   ].join('\n'));
   // the loudness filter can't lift a Short with long quiet parts all the way, so measure it and correct the rest
@@ -237,21 +251,30 @@ function main() {
   }
   const out = probe(outFile), report = [];
   const check = (ok, what, detail, warn) => report.push(`${ok ? 'PASS' : warn ? 'WARN' : 'FAIL'}  ${what}: ${detail}`);
+  const add = list => list.forEach(([level, what, detail]) => report.push(`${level}  ${what}: ${detail}`));
   check(out && out.width === W && out.height === H, 'Size', out ? `${out.width}x${out.height} (vertical 9:16)` : 'the video could not be read');
   check(out && Math.abs(out.duration - total) < 0.2, 'Length', out ? `${out.duration.toFixed(1)}s` : '-');
   check(total <= 60, 'Short length', total <= 60 ? 'under 60 s' : `${total.toFixed(0)}s: Shorts can be up to 3 minutes, but under 60 s usually does better`, true);
   check(!!out?.audio, 'Sound', out?.audio ? `voice${withAudio ? ` + original audio at ${set['original audio']}%` : ''}${musicFile ? ` + music at ${set['music volume']}%` : ''}${hits.length ? ` + ${hits.length} sound effect(s)` : ''}` : 'missing');
   check(lufs > -17 && lufs < -11, 'Loudness', `${lufs.toFixed(1)} LUFS (YouTube plays at -14)`, true);
+  add(early.slice(0, 2));
   check(hold === 0, 'Footage', hold === 0 ? `the voice fits inside ${pictured.toFixed(1)}s of footage${frozen ? ` (${frozen.toFixed(1)}s of it frozen)` : ''}` : `the voice runs ${hold.toFixed(1)}s past the footage, so the last frame is held; add footage or shorten the script`, true);
+  // black stretches (a cut that lands in a fade, or a dark clip)
+  const black = [...spawnSync(ffmpeg, ['-hide_banner', '-i', outFile, '-vf', 'blackdetect=d=0.4:pix_th=0.08', '-an', '-f', 'null', '-'], { encoding: 'utf8', maxBuffer: 1 << 28 }).stderr.matchAll(/black_start:([\d.]+) black_end:([\d.]+)/g)].map(m => `${(+m[1]).toFixed(1)}s-${(+m[2]).toFixed(1)}s`);
+  check(!black.length, 'Black frames', black.length ? `the picture is black at ${black.join(', ')}; move the cut so it misses the fade` : 'none', true);
+  add(timelineChecks(s.lines, s.markers, total, set.captions));
   const late = s.markers.filter(m => m.start >= total), drawn = s.markers.filter(m => ['label', 'circle', 'arrow'].includes(m.kind));
   const unsafe = drawn.filter(m => m.y > 0.8 || m.y < 0.07);
   check(!late.length, 'Markers', late.length ? `${late.map(m => `line ${m.line}`).join(', ')} start after the Short ends (${total.toFixed(1)}s), so they don't show` : `${s.markers.length} marker(s), all inside the Short`, true);
   check(!unsafe.length, 'Safe area', unsafe.length ? `${unsafe.map(m => `line ${m.line}`).join(', ')}: too close to the ${unsafe[0].y > 0.8 ? 'bottom' : 'top'}, where YouTube's buttons and title cover the picture (keep "down" between 7 and 80)` : 'labels, circles and arrows are clear of YouTube\'s buttons', true);
+  add(early.slice(2));
   check(!!set.credit, 'Credit', set.credit ? set.credit : 'no "credit:" line, so the description has a placeholder to fill in', true);
+  const coverOk = fs.existsSync(coverFile);
+  check(coverOk, 'Cover', coverOk ? `${name}-cover.jpg, the frame at ${cover.toFixed(1)}s with "${plainText(coverText)}"${set['cover at'] !== undefined && set['cover at'] > total ? ` (cover at ${set['cover at']}s is after the end, so the last frame is used)` : ''}` : 'could not be made', true);
   report.push('', 'Voice lines:', ...s.lines.map(l => `  ${l.start.toFixed(1)}s-${l.end.toFixed(1)}s  ${l.text}`));
   if (s.markers.length) report.push('', 'Markers:', ...[...s.markers].sort((a, b) => a.start - b.start).map(m => `  ${m.start.toFixed(1)}s-${Math.min(m.end, total).toFixed(1)}s  ${m.kind}${m.text ? ` "${m.text}"` : m.zoom ? ` ${m.zoom}x` : ''}  (line ${m.line})`));
   fs.writeFileSync(path.join(videos, `${name}-report.txt`), report.join('\n') + '\n');
-  say(`\n${report.slice(0, 9).join('\n')}\n\nDone: ${rel(outFile)}\nAlso in videos/: ${name}.srt, ${name}-description.txt, ${name}-report.txt`);
+  say(`\n${report.filter(l => /^(PASS|WARN|FAIL)/.test(l)).join('\n')}\n\nDone: ${rel(outFile)}\nAlso in videos/: ${name}-cover.jpg, ${name}.srt, ${name}-description.txt, ${name}-report.txt`);
   if (report.some(l => l.startsWith('FAIL'))) process.exit(1);
 }
 

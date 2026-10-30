@@ -1,5 +1,5 @@
 # An example script. To try it, put a clip called bonito.mp4 in clips/ and some music called curious.mp3 in music/.
-title: How bonito flakes are made
+title: How *bonito flakes* are made
 clip: clips/bonito.mp4
 voice: narrator
 original audio: 15%
@@ -9,6 +9,7 @@ crop: center
 credit: Original footage: (the creator's name and link)
 hashtags: #shorts #japan #japanesefood #howitsmade
 title card: 3
+cover text: The *hardest* food on Earth
 
 cut: 0-6.5
 cut: 9-17
@@ -24,7 +25,7 @@ label at 7.5 for 2: Weeks of smoke
 say at 10: A special mould is grown on it, on purpose.
 step: 3/3
 freeze for 2:
-circle: 50, 55
-arrow: 50, 55 from top left
+circle: 50, 42
+arrow: 50, 42 from top left
 say: Shaved paper thin, it becomes the flakes that dance on hot takoyaki.
 step: off

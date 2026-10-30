@@ -1,5 +1,6 @@
 # Copy this file to shorts/<your-short>.txt and fill it in.
 # Lines starting with # are notes for you; they don't do anything.
+# Words in *stars* turn yellow on the title card and the cover.
 
 # ---- settings ----
 title: Your title here
@@ -12,6 +13,8 @@ crop: center
 credit: Original footage: (the creator's name and link)
 hashtags: #shorts
 # title card: 3
+# cover at: 5
+# cover text: The *hardest* food on Earth
 # logo: logo.png
 # sound effects: on
 

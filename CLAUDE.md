@@ -10,4 +10,8 @@ The owner writes a script file (`shorts/<name>.txt`) for a clip; `tools/make-sho
 - Markers (`step`, `label`, `circle`, `arrow`) and the title card are ASS events in the same overlay file as the captions (`tools/markers.js`). libass quirk: with `\an7\pos(x,y)`, drawing coordinates are relative to (x, y), and scaling and rotation happen around it, so circles are drawn around (0, 0) and arrows have their tip at (0, 0).
 - `zoom` is one `zoompan` over the whole picture; `freeze` splits the footage into pieces with `tpad`. Every `at` time is in the finished Short.
 
-Roadmap: Phase 3 adds a cover image and more checks. Phase 4 adds a Claude prompt that drafts a script from a description of the clip.
+- The cover frame comes out of the main render (a `split` + `select` branch before the overlay, written with `-frames:v 1`), then gets `DARKEN` and its own small ASS file (`tools/cover.js`).
+- Checks: `tools/checks.js` for the clip, script and timeline (the clip ones also run with `--check`); the ones that need the finished video (size, loudness, black frames) are in `make-short.js`.
+- Don't give text with `*stars*` a BorderStyle 3 box: each colour run gets its own box and the overlaps show as dark patches.
+
+Roadmap: Phase 4 adds a Claude prompt that drafts a script from a description of the clip.

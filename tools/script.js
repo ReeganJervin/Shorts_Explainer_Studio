@@ -7,6 +7,7 @@ const SETTINGS = {
   title: 'text', clip: 'text', voice: 'text', 'original audio': 'percent', music: 'text', 'music volume': 'percent',
   crop: 'crop', credit: 'text', hashtags: 'text', captions: 'onoff', 'title card': 'titlecard',
   logo: 'text', 'logo position': 'corner', 'sound effects': 'onoff', 'sound effects volume': 'percent',
+  'cover at': 'time', 'cover text': 'text',
 };
 const DEFAULTS = {
   voice: 'narrator', 'original audio': 15, 'music volume': 20, crop: 0.5, captions: true, 'title card': 0,
@@ -113,6 +114,10 @@ function parseScript(text) {
       const v = value.toLowerCase(), s = seconds(v);
       if (!['on', 'off', 'always'].includes(v) && s === null) return err(n, 'title card: is a number of seconds (like 3), always, or off.');
       out.settings[key] = v === 'always' ? Infinity : v === 'on' ? 3 : v === 'off' ? 0 : s;
+    } else if (kind === 'time') {
+      const s = seconds(value);
+      if (s === null) return err(n, `${key}: needs a time in the finished Short, like "${key}: 7.5".`);
+      out.settings[key] = s;
     } else if (kind === 'corner') {
       const v = value.toLowerCase().replace(/\s+/g, ' ');
       if (!['top left', 'top right'].includes(v)) return err(n, 'logo position: is top left or top right (the bottom is covered by YouTube\'s buttons).');

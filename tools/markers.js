@@ -2,6 +2,7 @@
 // go into the same file as the captions. Positions are in the finished 1080x1920 picture, after any zoom.
 // Zooms and freezes change the picture itself; make-short.js handles those.
 const { assTime, assText } = require('./captions.js');
+const { richText } = require('./cover.js');
 
 const W = 1080, H = 1920;
 const r = n => Math.round(n);
@@ -17,7 +18,7 @@ const ARROW = 'm 0 0 l -90 -62 l -90 -22 l -250 -22 l -250 22 l -90 22 l -90 62'
 
 function markerEvents(markers, total, titleCard, title) {
   const out = [], until = e => Math.min(e, total);
-  if (titleCard > 0) out.push(ev(0, until(titleCard), 'Title', `{\\an8\\pos(540,255)\\fad(0,250)}${assText(title)}`, 2));
+  if (titleCard > 0) out.push(ev(0, until(titleCard), 'Title', `{\\an8\\pos(540,255)\\fad(0,250)}${richText(title)}`, 2));
   for (const m of markers) {
     const x = r(m.x * W), y = r(m.y * H), end = until(m.end);
     if (m.start >= total || m.kind === 'zoom' || m.kind === 'freeze' || m.off) continue;
