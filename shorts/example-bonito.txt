@@ -8,12 +8,23 @@ music volume: 20%
 crop: center
 credit: Original footage: (the creator's name and link)
 hashtags: #shorts #japan #japanesefood #howitsmade
+title card: 3
 
 cut: 0-6.5
 cut: 9-17
 
 say: This is one of the hardest foods on Earth.
 say: Fresh skipjack tuna is cut into four long loins.
+step: 1/3
+label: 4 loins
 say: Then it's smoked over a wood fire, again and again, for weeks.
+step: 2/3
+zoom for 3: 1.8x @ 60, 45
+label at 7.5 for 2: Weeks of smoke
 say at 10: A special mould is grown on it, on purpose.
+step: 3/3
+freeze for 2:
+circle: 50, 55
+arrow: 50, 55 from top left
 say: Shaved paper thin, it becomes the flakes that dance on hot takoyaki.
+step: off
