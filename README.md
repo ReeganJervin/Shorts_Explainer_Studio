@@ -6,9 +6,11 @@ You write a short script for a video clip and get a finished, explained vertical
 - **captions**, a few words at a time, with the spoken word in yellow
 - the **original sound turned down** and optional **background music**, both dipping further while the voice talks
 - the clip **cut** to the parts you choose and **cropped to 9:16**
+- **markers**: step counters, labels, circles and arrows, **zooms** and **freeze-frames**, each with its own sound effect
+- an optional **title card** and your **logo**
 - a `.srt` subtitle file, a **description draft** with a credit line, and a **check report**
 
-This is Phase 1. Coming next: step counters, labels, circles, arrows, zooms and freeze-frames (Phase 2), then a cover image and more checks (Phase 3).
+Coming next (Phase 3): a cover image and more checks.
 
 ## One-time setup (Windows)
 
@@ -48,13 +50,22 @@ music volume: 20%
 crop: center
 credit: Original footage: Example Channel (youtube.com/@example)
 hashtags: #shorts #japan #japanesefood
+title card: 3
 
 cut: 0-6.5
 cut: 9-17
 
 say: This is one of the hardest foods on Earth.
 say: Fresh skipjack tuna is cut into four long loins.
+step: 1/3
+label: 4 loins
+say: Then it's smoked over a wood fire, again and again, for weeks.
+step: 2/3
+zoom for 3: 1.8x @ 60, 45
 say at 10: A special mould is grown on it, on purpose.
+step: 3/3
+freeze for 2:
+circle: 50, 55
 say: Shaved paper thin, it becomes the flakes that dance on hot takoyaki.
 ```
 
@@ -74,6 +85,11 @@ Lines starting with `#` are notes and do nothing.
 | `credit:` | The credit line for the description | A placeholder to fill in |
 | `hashtags:` | The hashtags for the description | `#shorts` |
 | `captions:` | `on` or `off` | `on` |
+| `title card:` | Shows the title at the top: a number of seconds (like `3`), `always`, or `off` | `off` |
+| `logo:` | Your logo, a PNG with a transparent background, shown on the whole Short | No logo |
+| `logo position:` | `top left` or `top right` | `top left` |
+| `sound effects:` | `on` or `off` (a ding on steps, a pop on labels, circles and arrows, a whoosh on zooms, a click on freezes) | `on` |
+| `sound effects volume:` | How loud they are | `60%` |
 
 ### Cuts
 
@@ -82,7 +98,32 @@ Lines starting with `#` are notes and do nothing.
 ### Voice lines
 
 - `say: text` starts just after the line before it (the first one starts at 0.2 s).
-- `say at 10: text` starts 10 seconds into the **finished Short** (after the cuts), not into the original clip.
+- `say at 10: text` starts 10 seconds into the **finished Short** (after the cuts and freezes), not into the original clip.
+
+### Markers
+
+Markers point things out. Each one is a line like a voice line:
+
+```
+<marker> at <time> for <seconds>: <what>
+```
+
+- **Without `at`**, a marker starts with the `say` line just above it, which is usually what you want.
+- **Without `for`**, it stays for its usual time (in the table).
+- **Positions** are two numbers: **percent across, then percent down** the finished Short. `50, 50` is the middle and `50, 30` is centred, a third of the way down. Keep "down" between 7 and 80, because YouTube covers the top and bottom of a Short; the report warns you if a marker is too close.
+
+| Marker | Example | What it does | Stays for |
+|---|---|---|---|
+| `step:` | `step: 2/6` | A yellow "STEP 2/6" badge, top left. You can also write words: `step: Smoking`. `step: off` hides it | Until the next step |
+| `label:` | `label: 4 weeks` or `label: 4 weeks @ 50, 30` | A white tag with text. Without a position it sits near the top | 2.5 s |
+| `circle:` | `circle: 50, 55` or `circle: 50, 55, 30` | A yellow ring that pops in around a spot. The third number is its size (percent of the width, 20 if you leave it out) | 2 s |
+| `arrow:` | `arrow: 50, 55` or `arrow: 50, 55 from right` | An arrow that slides in and points at a spot. It can come `from` top left (the default), top, top right, left, right, bottom left, bottom or bottom right | 2 s |
+| `zoom:` | `zoom: 1.5x` or `zoom: 2x @ 60, 40` | Smoothly pushes in on a spot, holds, and goes back out. From 1.05x to 4x | 2.5 s |
+| `freeze:` | `freeze for 2:` | Stops the picture while the voice explains. The footage carries on afterwards, so the Short gets longer by that much | 1.5 s |
+
+Two zooms can't overlap, and neither can two freezes. Emoji in labels may not show, depending on the computer, so words are safer.
+
+### When the voice runs long
 
 If the voice goes on longer than the footage, the last frame is held until the voice ends, and the report warns you. To fix it, add footage or shorten the script.
 
@@ -100,6 +141,7 @@ If the voice goes on longer than the footage, the last frame is held until the v
 | `tools\make-short.js` | The main program behind the `.bat` files |
 | `tools\script.js` | Reads a script and places the voice lines on the timeline |
 | `tools\captions.js` | The burned-in captions and the `.srt` |
+| `tools\markers.js` | The step badge, labels, circles, arrows and title card |
 | `tools\tts.py` | Makes the voice lines with Kokoro |
 | `fonts\Anton-Regular.ttf` | The caption font (SIL Open Font License, in `licenses\`) |
 

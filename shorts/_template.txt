@@ -11,6 +11,9 @@ music volume: 20%
 crop: center
 credit: Original footage: (the creator's name and link)
 hashtags: #shorts
+# title card: 3
+# logo: logo.png
+# sound effects: on
 
 # ---- the parts of the clip to use (leave these out to use the whole clip) ----
 # cut: 0-6.5
@@ -21,4 +24,13 @@ hashtags: #shorts
 # "say at 10:" starts it 10 seconds into the short.
 say: Your hook goes here: the most surprising thing, in one sentence.
 say: Then explain what's happening, one step per line.
+step: 1/3
 say: End with a payoff that leads back into the start.
+
+# ---- markers (they start with the say line just above them, or use "at") ----
+# step: 2/3                        a "STEP 2/3" badge until the next step ("step: off" hides it)
+# label: 4 weeks @ 50, 30          a text tag (position: percent across, percent down)
+# circle: 50, 55                   a ring around a spot
+# arrow: 50, 55 from top left      an arrow pointing at a spot
+# zoom for 3: 1.8x @ 50, 40        push in on a spot for 3 seconds
+# freeze for 2:                    stop the picture for 2 seconds
