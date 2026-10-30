@@ -1,0 +1,21 @@
+{
+  "_about": "The channel's voices. A script picks one with \"voice: <name>\". \"voice\" is a Kokoro voice or a blend of two (weights add up to 1); speed and pitch multiply it (1 = unchanged); gain is in dB.",
+  "narrator": {
+    "_about": "Calm documentary voice (the default)",
+    "voice": "am_onyx:0.6+am_michael:0.4",
+    "speed": 1.0,
+    "pitch": 0.97
+  },
+  "energetic": {
+    "_about": "Fast, upbeat voice for quick-fact shorts",
+    "voice": "am_puck:0.7+am_adam:0.3",
+    "speed": 1.12,
+    "pitch": 1.02
+  },
+  "female": {
+    "_about": "Warm female narrator",
+    "voice": "af_heart:0.7+af_nicole:0.3",
+    "speed": 1.0,
+    "pitch": 1.0
+  }
+}

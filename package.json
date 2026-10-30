@@ -1,0 +1,13 @@
+{
+  "name": "shorts-explainer-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Write a short script for a clip, get an explained vertical Short.",
+  "scripts": {
+    "make": "node tools/make-short.js"
+  },
+  "dependencies": {
+    "ffmpeg-static": "5.2.0",
+    "ffprobe-static": "3.1.0"
+  }
+}

@@ -1,0 +1,19 @@
+# An example script. To try it, put a clip called bonito.mp4 in clips/ and some music called curious.mp3 in music/.
+title: How bonito flakes are made
+clip: clips/bonito.mp4
+voice: narrator
+original audio: 15%
+music: music/curious.mp3
+music volume: 20%
+crop: center
+credit: Original footage: (the creator's name and link)
+hashtags: #shorts #japan #japanesefood #howitsmade
+
+cut: 0-6.5
+cut: 9-17
+
+say: This is one of the hardest foods on Earth.
+say: Fresh skipjack tuna is cut into four long loins.
+say: Then it's smoked over a wood fire, again and again, for weeks.
+say at 10: A special mould is grown on it, on purpose.
+say: Shaved paper thin, it becomes the flakes that dance on hot takoyaki.

@@ -1,0 +1,24 @@
+# Copy this file to shorts/<your-short>.txt and fill it in.
+# Lines starting with # are notes for you; they don't do anything.
+
+# ---- settings ----
+title: Your title here
+clip: clips/your-clip.mp4
+voice: narrator
+original audio: 15%
+# music: music/your-music.mp3
+music volume: 20%
+crop: center
+credit: Original footage: (the creator's name and link)
+hashtags: #shorts
+
+# ---- the parts of the clip to use (leave these out to use the whole clip) ----
+# cut: 0-6.5
+# cut: 12-20
+
+# ---- what the voice says ----
+# A line without "at" starts right after the line before it.
+# "say at 10:" starts it 10 seconds into the short.
+say: Your hook goes here: the most surprising thing, in one sentence.
+say: Then explain what's happening, one step per line.
+say: End with a payoff that leads back into the start.

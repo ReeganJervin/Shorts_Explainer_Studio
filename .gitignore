@@ -1,0 +1,10 @@
+node_modules/
+.venv/
+models/
+build/
+videos/
+# your clips and music stay on your computer (the footage isn't ours to publish)
+clips/*
+!clips/README.txt
+music/*
+!music/README.txt
